@@ -13,8 +13,7 @@
 *.DS_Store
 
 # Directories
-/.vscode
+.*
+!.gitignore
 /github-connector/vendor
 
-# Gopkg
-Gopkg.*
