@@ -3,16 +3,17 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/google/go-github/github"
 	"github.com/kyma-incubator/hack-showcase/github-connector/internal/handlers/mocks"
-	"github.com/stretchr/testify/require"
+
+	"github.com/kyma-incubator/hack-showcase/github-connector/internal/apperrors"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type toJSON struct {
@@ -34,7 +35,7 @@ func createRequest(t *testing.T) *http.Request {
 }
 
 func TestWebhookHandler_TestBadSecret(t *testing.T) {
-	t.Run("should respond with 401 status code", func(t *testing.T) {
+	t.Run("should respond with 403 status code", func(t *testing.T) {
 		// given
 
 		payload := toJSON{TestJSON: "test"}
@@ -48,7 +49,7 @@ func TestWebhookHandler_TestBadSecret(t *testing.T) {
 		mockHandler := &mocks.Validator{}
 
 		mockHandler.On("GetToken").Return("test")
-		mockHandler.On("ValidatePayload", req, []byte("test")).Return(nil, errors.New("failed"))
+		mockHandler.On("ValidatePayload", req, []byte("test")).Return(nil, apperrors.AuthenticationFailed("fail"))
 
 		// when
 		wh := NewWebHookHandler(mockHandler)
@@ -58,8 +59,7 @@ func TestWebhookHandler_TestBadSecret(t *testing.T) {
 
 		// then
 		mockHandler.AssertExpectations(t)
-		assert.Equal(t, http.StatusUnauthorized, rr.Code)
-
+		assert.Equal(t, http.StatusForbidden, rr.Code)
 	})
 }
 
@@ -76,7 +76,7 @@ func TestWebhookHandler_TestWrongPayload(t *testing.T) {
 
 		mockHandler.On("GetToken").Return("test")
 		mockHandler.On("ValidatePayload", req, []byte("test")).Return(mockPayload, nil)
-		mockHandler.On("ParseWebHook", "", mockPayload).Return(nil, errors.New("failed"))
+		mockHandler.On("ParseWebHook", "", mockPayload).Return(nil, apperrors.WrongInput("fail"))
 
 		wh := NewWebHookHandler(mockHandler)
 
@@ -87,7 +87,6 @@ func TestWebhookHandler_TestWrongPayload(t *testing.T) {
 		// then
 		mockHandler.AssertExpectations(t)
 		assert.Equal(t, http.StatusBadRequest, rr.Code)
-
 	})
 
 }
@@ -117,9 +116,7 @@ func TestWebhookHandler_TestKnownEvent(t *testing.T) {
 		// then
 		mockHandler.AssertExpectations(t)
 		assert.Equal(t, http.StatusOK, rr.Code)
-
 	})
-
 }
 
 func TestWebhookHandler_TestUnknownEvent(t *testing.T) {
@@ -144,7 +141,6 @@ func TestWebhookHandler_TestUnknownEvent(t *testing.T) {
 
 		// then
 		mockHandler.AssertExpectations(t)
-		assert.Equal(t, http.StatusBadRequest, rr.Code)
+		assert.Equal(t, http.StatusNotFound, rr.Code)
 	})
-
 }

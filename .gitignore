@@ -16,4 +16,3 @@
 .*
 !.gitignore
 /github-connector/vendor
-
