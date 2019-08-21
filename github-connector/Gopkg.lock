@@ -50,8 +50,8 @@
     "mock",
     "require"
   ]
-  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
-  version = "v1.3.0"
+  revision = "221dbe5ed46703ee255b1da0dec05086f5035f62"
+  version = "v1.4.0"
 
 [[projects]]
   branch = "master"
@@ -73,9 +73,15 @@
   packages = ["unix"]
   revision = "fde4db37ae7ad8191b03d30d27f258b5291ae4e3"
 
+[[projects]]
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
+  version = "v2.2.2"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3f1bdea1e2c2d6f07a5519a489939be0e62d2979abd88e98f00dd7964d60946d"
+  inputs-digest = "c3d451a8e4be35851e22fa74feb67f98e1713e029f25db72f03613f3e0105b46"
   solver-name = "gps-cdcl"
   solver-version = 1
