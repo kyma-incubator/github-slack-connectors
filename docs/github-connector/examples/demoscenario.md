@@ -2,7 +2,7 @@
 
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
-- [Steps](#steps)
+  - [Steps](#steps)
 
 ## Overview
 
@@ -10,8 +10,8 @@ This purpose of this guide is to show example usage of GitHub Connector, which a
 
 ## Prerequisites
 
-- Kyma with the GitHub Connector [installed](/chart/githubconnector/README.md).
-- GitHub webhook [configured](https://developer.github.com/webhooks/creating/) to deliver payload to the Connector's `/webhook` endpoint.
+- Kyma with the GitHub Connector [installed](/docs/github-connector/installation.md).
+- GitHub webhook [configured](/docs/github-connector/configuration.md) to deliver payload to the GitHub Connector's `/webhook` endpoint.
 
 ### Steps
 
@@ -43,7 +43,7 @@ This purpose of this guide is to show example usage of GitHub Connector, which a
 
    >**NOTE:** Remember, that the Namespace must be the one in which you have deployed your lambda
 
-    3. Get logs from the Pod that runs the lambda function. Run this command:
+    1. Get logs from the Pod that runs the lambda function. Run this command:
 
    `kubectl logs -n {NAMESPACE} {LAMBDA-NAME} | grep "Issue opened"`
 
