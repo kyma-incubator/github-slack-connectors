@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "slack-connector-chart.release.name" . }}
+  labels:
+    app: {{ include "slack-connector-chart.name" . }}
+    app.kubernetes.io/name: {{ template "slack-connector-chart.name" . }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "slack-connector-chart.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "slack-connector-chart.name" . }}
+    spec:
+      containers:
+      - name: main
+        image: {{ .Values.container.image }}
+        resources:
+          limits:
+            memory: {{ .Values.container.limits.memory }}
+            cpu: {{ .Values.container.limits.cpu }}
+        ports:
+        - containerPort: {{ .Values.container.containerPort }}
+        env:
+        - name: PORT
+          value: {{ quote .Values.container.containerPort }}
+        - name: SLACK_CONNECTOR_NAME
+          value: {{ include "slack-connector-chart.release.name" . }}
+        - name: SLACK_BOT_TOKEN
+          value: {{ .Values.slackBotToken }}
+          

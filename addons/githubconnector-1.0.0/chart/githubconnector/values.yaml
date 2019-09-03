@@ -1,0 +1,18 @@
+replicaCount: 1
+
+container:
+  containerPort: 8080
+  limits:
+    memory: "128Mi"
+    cpu: "500m"
+
+image: kymaflyingseals/github-connector:0.3.0
+
+service:
+  port: 80
+
+githubURL: repos/:owner/:repo
+
+githubToken: sampleToken
+
+kymaAddress: kyma.address.com

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "github-connector-chart.repository" . }}
+  labels:
+    app: {{ include "github-connector-chart.name" . }}
+    chart: {{ include "github-connector-chart.chart" . }}
+    release: {{ include "github-connector-chart.release.name" . }}
+    heritage: {{ include "github-connector-chart.release.service" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "github-connector-chart.release.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "github-connector-chart.release.name" . }}
+    spec:
+      containers:
+      - name: main
+        image: {{ .Values.image }}
+        resources:
+          limits:
+            memory: {{ .Values.container.limits.memory }}
+            cpu: {{ .Values.container.limits.cpu }}
+        ports:
+        - containerPort: {{ .Values.container.containerPort }}
+        env:
+        - name: PORT
+          value: {{ quote .Values.container.containerPort }}
+        - name: GITHUB_CONNECTOR_NAME
+          value: {{ include "github-connector-chart.repository" . }}
+        - name: GITHUB_REPO_URL
+          value: https://api.github.com/{{ .Values.githubURL }}/hooks
+        - name: GITHUB_TOKEN
+          value: {{ .Values.githubToken }}
+        - name: KYMA_ADDRESS
+          value: {{ include "github-connector-chart.repository" . }}.{{ .Values.kymaAddress }}
+

@@ -1,0 +1,6 @@
+name: default
+id: 953cf38e-c501-4ac7-9763-84f1d22f5879
+description: "The default plan for installing/uninstalling the GitHub Connector"
+displayName: Default
+bindable: false
+free: true
