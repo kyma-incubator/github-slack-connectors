@@ -2,11 +2,6 @@
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
     "properties": {
-      "slackBotToken": {
-        "type":"string",
-        "title":"Bot Token",
-        "description": "The Slack workspace token, which you can find on this site: https://auth-slack.herokuapp.com/"
-      },
       "workspaceName": {
         "type":"string",
         "title":"Workspace Name",
@@ -23,5 +18,5 @@
         "description": "Specify the GitHub Connector image you want to use."
       }
     },
-    "required":["slackBotToken", "workspaceName", "slackSecret"]
+    "required":["workspaceName", "slackSecret"]
   }
