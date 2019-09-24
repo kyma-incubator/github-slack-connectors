@@ -10,7 +10,7 @@ import (
 
 	svcCatalog "github.com/google/kf/pkg/client/servicecatalog/clientset/versioned/typed/servicecatalog/v1beta1"
 	wrappers "github.com/kyma-incubator/hack-showcase/scenario/azure-comments-analytics/internal/clientwrappers"
-	"github.com/kyma-incubator/hack-showcase/scenario/azure-comments-analytics/internal/manager"
+	mgr "github.com/kyma-incubator/hack-showcase/scenario/azure-comments-analytics/internal/manager"
 	"github.com/vrischmann/envconfig"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -29,6 +29,10 @@ type Config struct {
 }
 
 func main() {
+	//Contain all created components
+	var installedComponents mgr.InstalledComponents
+	var clientWrappers mgr.Wrappers
+	var manager mgr.Manager
 
 	var cfg Config
 	err := envconfig.Init(&cfg)
@@ -51,32 +55,36 @@ func main() {
 	fatalOnError(err)
 
 	//Create scenario Manager
-	manager := manager.NewManager(cfg.Namespace, cfg.GithubURL, cfg.SlackWorkspace, azureClassName)
+	manager = mgr.NewManager(cfg.Namespace, cfg.GithubURL, cfg.SlackWorkspace, azureClassName)
 
 	//ServiceInstance
-	serviceCatalogClient := wrappers.NewServiceCatalogClient(svcClient)
-	err = manager.CreateServiceInstances(serviceCatalogClient.Instance(cfg.Namespace), svcList)
+	serviceCatalogWrapper := wrappers.NewServiceCatalogClient(svcClient)
+	clientWrappers.ServiceInstance = serviceCatalogWrapper.Instance(cfg.Namespace)
+	installedComponents.ServiceInstances, err = manager.CreateServiceInstances(clientWrappers.ServiceInstance, svcList)
 	fatalOnError(err)
 
 	//Function
 	kubeless, err := kubeless.NewForConfig(k8sConfig)
 	fatalOnError(err)
-	kubelessClient := wrappers.NewKubelessClient(kubeless.Kubeless())
-	err = manager.CreateFunction(kubelessClient.Function(cfg.Namespace))
+	kubelessWrapper := wrappers.NewKubelessClient(kubeless.Kubeless())
+	clientWrappers.Function = kubelessWrapper.Function(cfg.Namespace)
+	installedComponents.Functions, err = manager.CreateFunction(clientWrappers.Function)
 	fatalOnError(err)
 
 	//Other components have to wait for end of creating function
 	time.Sleep(5 * time.Second)
 
 	//ServiceBindings
-	err = manager.CreateServiceBindings(serviceCatalogClient.Binding(cfg.Namespace))
+	clientWrappers.Binding = serviceCatalogWrapper.Binding(cfg.Namespace)
+	installedComponents.ServiceBindings, err = manager.CreateServiceBindings(clientWrappers.Binding)
 	fatalOnError(err)
 
 	//ServiceBindingUsages
 	catalogClient, err := svcBind.NewForConfig(k8sConfig)
 	fatalOnError(err)
-	kymaServiceCatalogClient := wrappers.NewKymaServiceCatalogClient(catalogClient)
-	err = manager.CreateServiceBindingUsages(kymaServiceCatalogClient.BindingUsage(cfg.Namespace))
+	kymaServiceCatalog := wrappers.NewKymaServiceCatalogClient(catalogClient)
+	clientWrappers.BindingUsage = kymaServiceCatalog.BindingUsage(cfg.Namespace)
+	installedComponents.ServiceBindingUsages, err = manager.CreateServiceBindingUsages(clientWrappers.BindingUsage)
 	fatalOnError(err)
 
 	//To create subscription resources above must be ready. Wait for their creation.
@@ -85,10 +93,10 @@ func main() {
 	//Subscription
 	bus, err := eventbus.NewForConfig(k8sConfig)
 	fatalOnError(err)
-	eventbusClient := wrappers.NewEventbusClient(bus.Eventing())
-	err = manager.CreateSubscription(eventbusClient.Subscription(cfg.Namespace))
+	eventbusWrapper := wrappers.NewEventbusClient(bus.Eventing())
+	clientWrappers.Subscription = eventbusWrapper.Subscription(cfg.Namespace)
+	installedComponents.Subscriptions, err = manager.CreateSubscription(clientWrappers.Subscription)
 	fatalOnError(err)
-
 }
 
 func fatalOnError(err error) {
