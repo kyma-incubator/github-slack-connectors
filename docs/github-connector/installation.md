@@ -19,31 +19,35 @@ The GitHub Connector is a component which allows interaction with the GitHub API
 
 ### Prerequisites
 
-- GitHub App with desired privileges installed to the destination repository or organization. To create a new application, go [here](https://github.com/settings/apps) or access **Github Apps** in the account through **Settings** in **Developer settings**.
+- Personal Access Token with desired privileges. To generate a new token, go [here](https://github.com/settings/tokens) or access **Personal access tokens** in the account through **Developer settings** in **Settings**. 
+> **NOTE**:To generate a token for an organization, you need the [OAuth or Github App](https://developer.github.com/apps/).
 - Access to the Kyma Console
 
 > **NOTE**: It is best to create or use an additional service account (e.g. Your-Project-Name-Github-Connector) since any actions that the application performs are signed with the name of the user that the token belongs to.
 
-> **OPTIONAL:** Follow these steps to install the default application. Be aware that it has **full permissions** in the repository/organization.
->
-> 1. Go to the [authentication page](https://auth-github-connector.herokuapp.com/). Click the **GitHub** button, which redirects you to another page. Select the repositories or organizations you want to install the application to and click **Install**.
->       - **NOTE:** If the link does not work, see [this tutorial](https://developer.github.com/apps/quickstart-guides/setting-up-your-development-environment/#step-2-register-a-new-github-app) in the GitHub documentation to create your own application.
-> 2. Copy the Authentication Token. You will need it later in the installation process.
-
 ### Steps
 
-1. In Kyma console, access the **Add-Ons Config** menu.
-2. Click **Add New Configuration** and in fill in the **Urls** field with this URL:
+1. Add addons configuration to Kyma. Run:
 
-   ```http
-   github.com/kyma-incubator/hack-showcase//addons/index.yaml
-   ```
+    ``` shell
+    cat <<EOF | kubectl apply -f -
+    apiVersion: addons.kyma-project.io/v1alpha1
+    kind: ClusterAddonsConfiguration
+    metadata:
+      name: addons-slack-github-connectors
+      finalizers:
+      - addons.kyma-project.io
+    spec:
+      repositories:
+        - url: github.com/kyma-incubator/github-slack-connectors//addons/index.yaml
+    EOF
+    ```
 
-3. Go to the Namespace in which to install the Connector.
-4. Find the Add-On in the Service Catalog and click it.
-5. Click **Add** and select the installation plan. Fill in all required fields and click **Create Instance**.
-6. Go to the **Services** tab in the Service Catalog. After provisioning and automatic registration of application's resources, the Service Class of the GitHub Connector appears here.
-7. Click the Service Class to enter its specification screen, click **Add once**, and then **Create Instance**.
+2. Go to the Namespace in which to install the Connector.
+3. Find the Add-On in the Service Catalog and click it.
+4. Click **Add** and select the installation plan. Fill in all required fields and click **Create Instance**.
+5. Go to the **Services** tab in the Service Catalog. After provisioning and automatic registration of the Application resources, the Service Class of the GitHub Connector appears here.
+6. Click the Service Class to enter its specification screen, click **Add once**, and then **Create Instance**.
 
 To send requests to the GitHub API, bind the service you created to the Lambda Function.
 
@@ -69,6 +73,7 @@ To correctly remove all GitHub Connector resources, you must delete them in orde
 
 - Connection to Kyma cluster
 - The GitHub Connector Docker image
+- Personal access token
 
 ### Steps
 
@@ -81,6 +86,6 @@ To correctly remove all GitHub Connector resources, you must delete them in orde
 
     >**CAUTION:** Make sure the Kyma address is in the correct format. It consists of the domain name and cannot begin with the dot. For example, `35.187.32.214.xip.io`.
 
-    >**NOTE:** To define the Namespace in which to install chart, add the `--namespace` flag to the command. To define the GitHub URL, add the `--set githubURL` flag. To crate a webhook on one repository, use the construction `repos/:owner/:repo`. To create a webhook on the whole organization, use `orgs/:org`. To provide the security token, use the `--set githubToken` flag.
+    >**NOTE:** To define the Namespace in which to install the chart, add the `--namespace` flag to the command. To define the GitHub URL, add the `--set githubURL` flag. To create a webhook on one repository, use the construction `repos/:owner/:repo`. To create a webhook on the whole organization, use `orgs/:org`. To provide the security token, use the `--set githubToken` flag.
 
-3. For further steps, see [configuration page](/docs/github-connector/configuration.md).
+If you want to add a new repository after the installation, see the [manual configuration page](/docs/github-connector/manual_connection.md).

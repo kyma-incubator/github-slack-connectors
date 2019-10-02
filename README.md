@@ -2,7 +2,7 @@
 
 ---
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/kyma-incubator/hack-showcase)](https://goreportcard.com/report/github.com/kyma-incubator/hack-showcase)
+[![Go Report Card](https://goreportcard.com/badge/github.com/kyma-incubator/github-slack-connectors)](https://goreportcard.com/report/github.com/kyma-incubator/github-slack-connectors)
 
 ---
 
@@ -21,7 +21,7 @@ This showcase covers the user story described in the project [concept](https://g
 
 This diagram shows the interaction of the components in the described scenario:
 
-![Software architecture image](docs/flowdiagram.svg)
+![Software architecture image](docs/assets/flowdiagram.svg)
 
 ## Quick start
 
@@ -39,8 +39,8 @@ You can install the Connectors and start using them in just a few steps. Follow 
       - addons.kyma-project.io
     spec:
       repositories:
-        - url: github.com/kyma-incubator/hack-showcase//addons/index.yaml
-        - url: github.com/kyma-incubator/hack-showcase//addons/index-scenario.yaml
+        - url: github.com/kyma-incubator/github-slack-connectors//addons/index.yaml
+        - url: github.com/kyma-incubator/github-slack-connectors//addons/index-scenario.yaml
     EOF
     ```
 
